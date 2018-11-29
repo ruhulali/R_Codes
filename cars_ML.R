@@ -6,7 +6,7 @@ data(tips, package = "reshape2")
 View(tips)
 
 ######################### Data Checks ######################################
-
+rm(list = ls())
 class(df$trigger_dt)                #finding class 
 dfa$dfb <- NULL                     #remove data
 dfa <- NULL                         #remove data
@@ -36,7 +36,7 @@ t
 
 ########
 
-find_funs("table.extended") 
+find_funs("tidy") 
 source("https://sebastiansauer.github.io/Rcode/find_funs.R")
 
 # OR #
@@ -150,7 +150,7 @@ CrossTable(tips$sex, tips$smoker, prop.chisq=F, format="SPSS")
 
 
 
-###### Multilinear Regression ###########
+###### 1. Linear Regression ###########
 
 
 # Splitting the dataset into the Training set and Test set
@@ -189,7 +189,6 @@ final1 <- cbind(final1, error= final1$actual - final1$predicted)
 rmse1 <- sqrt(mean((final1$error)^2))
 rmse1
 
-
 # AIC & BIC Calculation
 y_pred1 = predict(mod1, test_set)
 AIC(mod1)
@@ -218,7 +217,6 @@ cvResults1 <- suppressWarnings(CVlm(data=tips, form.lm=total_bill ~ ., m=5, dots
                                     legend.pos="topleft",  printit=TRUE, main="Small symbols are predicted values while bigger ones are actuals."))  
 
 attr(cvResults1, 'ms')  
-
 
 
 ### Model 2 Regression
@@ -279,38 +277,88 @@ mape1
 reg.eval1
 cvResults1
 
+tab1<-table(tips$sex, tips$day) #Create a table of counts (object of class table)
+barplot(rmse, legend.text = T) #Stacked barchart
+barplot(tab1, legend.text = T, beside=T) #Barchart (not stacked)
+barplot(tab1, legend.text = T, horiz=T) #Bars are shown horizontally
+dotchart(tab1) #Cleveland's dot chart
+mosaicplot(tab1) #from the {graphics} package
 
-name <- c("rmse1", "rmse2", "AIC(mod1)", "AIC(mod2)", "BIC(mod1)", "BIC(mod2)", "correlation_accuracy1", "correlation_accuracy2", "min_max_accuracy1", "min_max_accuracy2", "mape1", "mape2", "reg.eval1", "reg.eval2")
-number <- c(rmse1, rmse2, AIC(mod1), AIC(mod2), BIC(mod1), BIC(mod2), correlation_accuracy1, correlation_accuracy2, min_max_accuracy1, min_max_accuracy2, mape1, mape2, reg.eval1, reg.eval2)
-final_results <- data.frame(name, number)
 
-name
-number
+##### 2. Logistic Regression #####
 
-# Visualising the Regression Model results
+data(tips, package = "reshape2")
+View(tips)
 
-# install.packages('ggplot2')
-library(ggplot2)
-ggplot() +
-  geom_point(aes(x = dataset$Level, y = dataset$Salary),
-             colour = 'red') +
-  geom_line(aes(x = dataset$Level, y = predict(regressor, newdata = dataset)),
-            colour = 'blue') +
-  ggtitle('Truth or Bluff (Regression Model)') +
-  xlab('Level') +
-  ylab('Salary')
+# Encoding the target feature as factor
+str(tips)
+psych::describe(tips)
+mlr::summarizeColumns(tips)
+colSums(is.na(tips))
+table(is.na(tips))
+levels(tips$sex)
 
-# Visualising the Regression Model results (for higher resolution and smoother curve)
+library('plyr')
+tips$sex <- revalue(tips$sex, c("Male"="1", "Female"="0"))
+tips$smoker <- revalue(tips$smoker, c("Yes"="1", "No"="0"))
+tips$day <- revalue(tips$day, c("Thur"="1", "Fri"="2", "Sat"="3", "Sun"="4"))
+tips$time <- revalue(tips$time, c("Lunch"="1", "Dinner"="2"))
+as.numeric(as.character(tips$size))
 
-# install.packages('ggplot2')
-library(ggplot2)
-x_grid = seq(min(dataset$Level), max(dataset$Level), 0.1)
-ggplot() +
-  geom_point(aes(x = dataset$Level, y = dataset$Salary),
-             colour = 'red') +
-  geom_line(aes(x = x_grid, y = predict(regressor, newdata = data.frame(Level = x_grid))),
-            colour = 'blue') +
-  ggtitle('Truth or Bluff (Regression Model)') +
-  xlab('Level') +
-  ylab('Salary')
+# Splitting the dataset into the Training set and Test set
+# install.packages('caTools')
+library(caTools)
+set.seed(123)
+split = sample.split(tips$sex, SplitRatio = 0.75)
+training_set = subset(tips, split == TRUE)
+test_set = subset(tips, split == FALSE)
+
+# Build Logistic Model
+logitmod <- glm(sex ~ ., family = "binomial", data=training_set)
+
+# Predicting the Test set results
+pred <- predict(logitmod, newdata = test_set, type = "response")
+pred
+y_pred = ifelse(pred > 0.5, 1, 0)
+
+library(InformationValue)
+optCutOff <- optimalCutoff(test_set$sex, pred)[1] 
+optCutOff
+#Misclassification error is the percentage mismatch of predcited vs actuals, 
+#irrespective of 1's or 0's. The lower the misclassification error, the better is your model.
+misClassError(test_set$sex, pred, threshold = optCutOff) 
+summary(logitmod)
+#check for multicollinearity in the model.
+DAAG::vif(logitmod)  
+#Receiver Operating Characteristics Curve traces the percentage of true positives accurately predicted by a given logit model as the 
+#prediction probability cutoff is lowered from 1 to 0. For a good model, as the cutoff is lowered, it should mark more of actual 1's 
+#as positives and lesser of actual 0's as 1's. So for a good model, the curve should rise steeply, indicating that the TPR (Y-Axis) 
+#increases faster than the FPR (X-Axis) as the cutoff score decreases. Greater the area under the ROC curve, better the predictive 
+#ability of the model.
+plotROC(test_set$sex, pred)
+#In simpler words, of all combinations of 1-0 pairs (actuals), Concordance is the percentage of pairs, whose scores of actual 
+#positive's are greater than the scores of actual negative's. For a perfect model, this will be 100%. So, the higher the concordance, 
+#the better is the quality of model.
+Concordance(test_set$sex, pred)
+#Sensitivity (or True Positive Rate) is the percentage of 1's (actuals) correctly predicted by the model, 
+sensitivity(test_set$sex, pred, threshold = optCutOff)
+#specificity is the percentage of 0's (actuals) correctly predicted
+specificity(test_set$sex, pred, threshold = optCutOff)
+confusionMatrix(test_set$sex, pred, threshold = optCutOff)
+
+# Making the Confusion Matrix
+cm = table(test_set[, 3], y_pred > 0.5)
+cm
+
+# Recode factors
+y_pred_num <- ifelse(pred > 0.5, 1, 0)
+y_pred_num
+y_pred <- factor(y_pred_num, levels=c(0, 1))
+y_pred
+y_act <- test_set$sex
+y_act
+
+# Accuracy
+mean(y_pred == y_act)  # 94%
+
 

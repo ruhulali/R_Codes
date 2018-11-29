@@ -45,6 +45,7 @@ BIC(lmMod)
 
 actuals_preds <- data.frame(cbind(actuals=testData$dist, predicteds=distPred))  # make actuals_predicteds dataframe.
 correlation_accuracy <- cor(actuals_preds)  # 82.7%
+correlation_accuracy
 head(actuals_preds)
 
 # Min-Max Accuracy Calculation

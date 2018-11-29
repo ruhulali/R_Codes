@@ -1,6 +1,6 @@
 ######################### file/path/package ######################################
 rm(list = ls())
-path <- "D:/CAREER COLLISION/OFFICE/WORK/WIP"
+path <- "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18"
 setwd(path)
 
 install.packages("LearnBayes", dependencies = T)
@@ -19,21 +19,21 @@ library(LearnBayes)
 library(psych)
 library(tibble)
 
-find_funs(".") 
+find_funs("InsertRow") 
 source("https://sebastiansauer.github.io/Rcode/find_funs.R")
 
 install.packages("sos")
 library(sos)
-findFn("CrossTable")
+findFn("InsertRow")
 
 ######################### script ######################################
 
 ##upload##
 library(readr)
-df <- read_csv("D:/CAREER COLLISION/OFFICE/WORK/WIP/Item_Delivery_tpNSAT_US_Jan18.csv")
+df <- read_csv("Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/Item_Delivery_tpNPS_Feb'18_Data.csv")
 
 ##upload restructured data##
-df <- read_csv("Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/12_Dec'17/nov17_itm_del_restructured.csv")
+df <- read_csv("Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/feb18_itm_del_restructured.csv")
 
 ##create month & year##
 library(tidyverse)
@@ -199,7 +199,7 @@ df$USER_AGE_2 <- ifelse(df$USER_AGE >= 15 & df$USER_AGE <= 24, "15-24",
                  ifelse(df$USER_AGE >= 45 & df$USER_AGE <= 64, "45-64",
                  ifelse(df$USER_AGE >= 65,"65+", "?"))))
 
-write.csv(df, "D:/CAREER COLLISION/OFFICE/WORK/WIP/jan17_itm_del_restructured.csv", row.names = F)
+write.csv(df, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/feb18_itm_del_restructured.csv", row.names = F)
 
 ##########################################################
 
@@ -215,7 +215,7 @@ z1[1,"nps"] <- round(z1[1,2]/sum(z1$Freq)*100,2)
 z1[2,"nps"] <- round(z1[2,2]/sum(z1$Freq)*100,2)
 z1[3,"nps"] <- round(z1[3,2]/sum(z1$Freq)*100,2)
 z1
-write.csv(z1, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table1.csv", row.names = F)
+write.csv(z1, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table1.csv", row.names = F)
 
 
 ###tp_sat% Calc slide#3 ###
@@ -234,7 +234,7 @@ z2[9,"nps"] <- round(z2[9 ,2]/sum(z2$Freq)*100,2)
 z2[10,"nps"] <- round(z2[10 ,2]/sum(z2$Freq)*100,2)
 z2[11,"nps"] <- round(z2[11 ,2]/sum(z2$Freq)*100,2)
 z2
-write.csv(z2, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table2.csv", row.names = F)
+write.csv(z2, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table2.csv", row.names = F)
 
 
 ### regression - overall ###
@@ -247,7 +247,7 @@ library(QuantPsyc)
 z3 <- lm.beta(reg)
 z3
 View(z3)
-write.csv(z3, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table3.csv", row.names = T)
+write.csv(z3, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table3.csv", row.names = T)
 
 names(df)
 
@@ -255,7 +255,7 @@ names(df)
 
 library(data.table)
 library(reshape2)
-dfa = dcast(df, PROM_ACT_DELIV_2 ~ NPS2)
+dfa = dcast(df, FREE_SHPNG_YN_IND_2 ~ NPS2)
 dfa = dcast(df, PRDCTV_GNDR + MBL_DVIC_NAME ~ NPS2, subset=.(PRDCTV_GNDR == "M"))
 dfa
 dfa$total = with(dfa, Det+Pass+Prom)
@@ -263,9 +263,10 @@ dfa$detpct = (dfa$Det / dfa$total)*100
 dfa$passpct = (dfa$Pass / dfa$total)*100
 dfa$prompct = (dfa$Prom / dfa$total)*100
 dfa$nsat <- round((dfa$prompct - dfa$detpct),2)
+dfa$total <- sum(dfa$total)
 dfa
 View(dfa)
-write.csv(dfa, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/12_Dec'17/nov17_itm_del_tables.csv", row.names = F)
+write.csv(dfa, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/nov17_itm_del_tables.csv", row.names = F)
 
 
 #### total_script ####
@@ -278,7 +279,7 @@ df1$passpct = (df1$Pass / df1$total)*100
 df1$prompct = (df1$Prom / df1$total)*100
 df1$nsat <- round((df1$prompct - df1$detpct),2)
 df1
-write.csv(df1, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table4.csv", row.names = F)
+write.csv(df1, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table4.csv", row.names = F)
 
 df2 = dcast(df, DELIV_TIME_BUCKET_2 ~ NPS2)
 df2
@@ -288,7 +289,7 @@ df2$passpct = (df2$Pass / df2$total)*100
 df2$prompct = (df2$Prom / df2$total)*100
 df2$nsat <- round((df2$prompct - df2$detpct),2)
 df2
-write.csv(df2, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table5.csv", row.names = F)
+write.csv(df2, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table5.csv", row.names = F)
 
 df3 = dcast(df, SPE_ACT_HT_FULFLD_2 ~ NPS2)
 df3
@@ -298,7 +299,7 @@ df3$passpct = (df3$Pass / df3$total)*100
 df3$prompct = (df3$Prom / df3$total)*100
 df3$nsat <- round((df3$prompct - df3$detpct),2)
 df3
-write.csv(df3, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table6.csv", row.names = F)
+write.csv(df3, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table6.csv", row.names = F)
 
 df4 = dcast(df, FREE_SHPNG_YN_IND_2 ~ NPS2)
 df4
@@ -308,7 +309,7 @@ df4$passpct = (df4$Pass / df4$total)*100
 df4$prompct = (df4$Prom / df4$total)*100
 df4$nsat <- round((df4$prompct - df4$detpct),2)
 df4
-write.csv(df4, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table7.csv", row.names = F)
+write.csv(df4, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table7.csv", row.names = F)
 
 df5 = dcast(df, SHPNG_FEE_AMT_2 ~ NPS2)
 df5
@@ -318,7 +319,7 @@ df5$passpct = (df5$Pass / df5$total)*100
 df5$prompct = (df5$Prom / df5$total)*100
 df5$nsat <- round((df5$prompct - df5$detpct),2)
 df5
-write.csv(df5, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table8.csv", row.names = F)
+write.csv(df5, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table8.csv", row.names = F)
 
 df6 = dcast(df, FAST_N_FREE_YN_IND_2 ~ NPS2)
 df6
@@ -328,7 +329,7 @@ df6$passpct = (df6$Pass / df6$total)*100
 df6$prompct = (df6$Prom / df6$total)*100
 df6$nsat <- round((df6$prompct - df6$detpct),2)
 df6
-write.csv(df6, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table9.csv", row.names = F)
+write.csv(df6, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table9.csv", row.names = F)
 
 df7 = dcast(df, LABEL_TRANS_2 ~ NPS2)
 df7
@@ -338,7 +339,7 @@ df7$passpct = (df7$Pass / df7$total)*100
 df7$prompct = (df7$Prom / df7$total)*100
 df7$nsat <- round((df7$prompct - df7$detpct),2)
 df7
-write.csv(df7, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table10.csv", row.names = F)
+write.csv(df7, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table10.csv", row.names = F)
 
 df8 = dcast(df, TRKING_SRC_CRE_DT_2 ~ NPS2)
 df8
@@ -348,7 +349,7 @@ df8$passpct = (df8$Pass / df8$total)*100
 df8$prompct = (df8$Prom / df8$total)*100
 df8$nsat <- round((df8$prompct - df8$detpct),2)
 df8
-write.csv(df8, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table11.csv", row.names = F)
+write.csv(df8, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table11.csv", row.names = F)
 
 df9 = dcast(df, LABEL_TRANS_2 + TRKING_SRC_CRE_DT_2 ~ NPS2)
 df9
@@ -358,7 +359,7 @@ df9$passpct = (df9$Pass / df9$total)*100
 df9$prompct = (df9$Prom / df9$total)*100
 df9$nsat <- round((df9$prompct - df9$detpct),2)
 df9
-write.csv(df9, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table12.csv", row.names = F)
+write.csv(df9, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table12.csv", row.names = F)
 
 df10 = dcast(df, CBT_YN_IND_2 ~ NPS2)
 df10
@@ -368,7 +369,7 @@ df10$passpct = (df10$Pass / df10$total)*100
 df10$prompct = (df10$Prom / df10$total)*100
 df10$nsat <- round((df10$prompct - df10$detpct),2)
 df10
-write.csv(df10, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table13.csv", row.names = F)
+write.csv(df10, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table13.csv", row.names = F)
 
 df11 = dcast(df, ITM_CNDTN_2 ~ NPS2)
 df11
@@ -378,7 +379,7 @@ df11$passpct = (df11$Pass / df11$total)*100
 df11$prompct = (df11$Prom / df11$total)*100
 df11$nsat <- round((df11$prompct - df11$detpct),2)
 df11
-write.csv(df11, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table14.csv", row.names = F)
+write.csv(df11, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table14.csv", row.names = F)
 
 df12 = dcast(df, ITEM_PRICE_AMT_2 ~ NPS2)
 df12
@@ -388,7 +389,7 @@ df12$passpct = (df12$Pass / df12$total)*100
 df12$prompct = (df12$Prom / df12$total)*100
 df12$nsat <- round((df12$prompct - df12$detpct),2)
 df12
-write.csv(df12, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table15.csv", row.names = F)
+write.csv(df12, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table15.csv", row.names = F)
 
 df13 = dcast(df, FM_BYR_SGMNTN_DESC_2 ~ NPS2)
 df13
@@ -398,7 +399,7 @@ df13$passpct = (df13$Pass / df13$total)*100
 df13$prompct = (df13$Prom / df13$total)*100
 df13$nsat <- round((df13$prompct - df13$detpct),2)
 df13
-write.csv(df13, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table16.csv", row.names = F)
+write.csv(df13, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table16.csv", row.names = F)
 
 df14 = dcast(df, SAP_GLBL_NAME_2 ~ NPS2)
 df14
@@ -408,7 +409,7 @@ df14$passpct = (df14$Pass / df14$total)*100
 df14$prompct = (df14$Prom / df14$total)*100
 df14$nsat <- round((df14$prompct - df14$detpct),2)
 df14
-write.csv(df14, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table17.csv", row.names = F)
+write.csv(df14, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table17.csv", row.names = F)
 
 df15 = dcast(df, MBL_DVIC_NAME ~ NPS2)
 df15
@@ -418,7 +419,7 @@ df15$passpct = (df15$Pass / df15$total)*100
 df15$prompct = (df15$Prom / df15$total)*100
 df15$nsat <- round((df15$prompct - df15$detpct),2)
 df15
-write.csv(df15, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table18.csv", row.names = F)
+write.csv(df15, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table18.csv", row.names = F)
 
 df16 = dcast(df, PRDCTV_GNDR ~ NPS2)
 df16
@@ -428,7 +429,7 @@ df16$passpct = (df16$Pass / df16$total)*100
 df16$prompct = (df16$Prom / df16$total)*100
 df16$nsat <- round((df16$prompct - df16$detpct),2)
 df16
-write.csv(df16, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table19.csv", row.names = F)
+write.csv(df16, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table19.csv", row.names = F)
 
 df17 = dcast(df, PRDCTV_GNDR + MBL_DVIC_NAME ~ NPS2, subset=.(PRDCTV_GNDR == "M"))
 df17
@@ -438,7 +439,7 @@ df17$passpct = (df17$Pass / df17$total)*100
 df17$prompct = (df17$Prom / df17$total)*100
 df17$nsat <- round((df17$prompct - df17$detpct),2)
 df17
-write.csv(df17, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table20.csv", row.names = F)
+write.csv(df17, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table20.csv", row.names = F)
 
 df18 = dcast(df, PRDCTV_GNDR + MBL_DVIC_NAME ~ NPS2, subset=.(PRDCTV_GNDR == "F"))
 df18
@@ -448,7 +449,7 @@ df18$passpct = (df18$Pass / df18$total)*100
 df18$prompct = (df18$Prom / df18$total)*100
 df18$nsat <- round((df18$prompct - df18$detpct),2)
 df18
-write.csv(df18, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table21.csv", row.names = F)
+write.csv(df18, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table21.csv", row.names = F)
 
 df19 = dcast(df, PRDCTV_GNDR + USER_AGE_2 ~ NPS2)
 df19
@@ -458,12 +459,12 @@ df19$passpct = (df19$Pass / df19$total)*100
 df19$prompct = (df19$Prom / df19$total)*100
 df19$nsat <- round((df19$prompct - df19$detpct),2)
 df19
-write.csv(df19, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table22.csv", row.names = F)
+write.csv(df19, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table22.csv", row.names = F)
 
 df20 = data.frame(table(df$USER_AGE_2))
 df20$percent= round(df20$Freq / sum(df20$Freq)*100,2)
 df20
-write.csv(df20, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table23.csv", row.names = F)
+write.csv(df20, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table23.csv", row.names = F)
 
 df21 = dcast(df, PRDCTV_GNDR + USER_AGE_2 ~ NPS2)
 df21
@@ -473,7 +474,7 @@ df21$passpct = (df21$Pass / df21$total)*100
 df21$prompct = (df21$Prom / df21$total)*100
 df21$nsat <- round((df21$prompct - df21$detpct),2)
 df21
-write.csv(df21, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table24.csv", row.names = F)
+write.csv(df21, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table24.csv", row.names = F)
 
 df22 = dcast(df, PRDCTV_GNDR + mrtl_status_cd_2 ~ NPS2)
 df22
@@ -483,52 +484,52 @@ df22$passpct = (df22$Pass / df22$total)*100
 df22$prompct = (df22$Prom / df22$total)*100
 df22$nsat <- round((df22$prompct - df22$detpct),2)
 df22
-write.csv(df22, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table24.csv", row.names = F)
+write.csv(df22, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table25.csv", row.names = F)
 
 ### merging files syntax-1 (when all columns are same)###
 
-setwd("Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/12_Dec'17/data_tables/")
+setwd("Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/")
 filenames <- list.files(full.names=TRUE)
 All <- lapply(filenames,function(i){read.csv(i, header=F)})
 dfz <- do.call(rbind.data.frame, All)
-write.csv(dfz,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/12_Dec'17/data_tables/all_tables.csv",row.names=F)
+write.csv(dfz,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/all_tables.csv",row.names=F)
 
 ### merging files syntax-2 (irrespective of no. of columns)###
 
-write.table(z1, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",")
-write.table(z2, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(z3, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=T,sep=",",append=T)
-write.table(df1, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df2, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df3, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df4, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df5, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df6, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df7, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df8, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df9, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df10, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df11, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df12, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df13, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df14, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df15, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df16, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df17, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df18, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df19, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df20, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df21, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
-write.table(df22, "D:/CAREER COLLISION/OFFICE/WORK/WIP/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(z1,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",")
+write.table(z2,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(z3, "Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv", row.names = T,sep=",",append=T)
+write.table(df1,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df2,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df3,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df4,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df5,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df6,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df7,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df8,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df9,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df10,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df11,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df12,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df13,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df14,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df15,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df16,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df17,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df18,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df19,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df20,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df21,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
+write.table(df22,"Z:/eBay/Item Delivery tpNPS/US/Reporting/WIP/2_Feb18/data_tables/table_all.csv",row.names=F,col.names=T,sep=",",append=T)
 
 ###################################
 
-ggplot(df1, aes(x= nsat,  group=CBT_YN_IND_2)) + 
+ggplot(df1, aes(x= nsat,  group=PROM_ACT_DELIV_2)) + 
   geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
   geom_text(aes( label = scales::percent(..prop..),y= ..prop.. ), stat= "count", vjust = -.5) +
-  labs(y = "Percent", fill="nsat") + facet_grid(~CBT_YN_IND_2) +
+  labs(y = "Percent", fill="nsat") + facet_grid(~PROM_ACT_DELIV_2) +
   scale_y_continuous(labels = scales::percent) + 
-  CrossTable(df1$nsat,df1$CBT_YN_IND_2, prop.chisq=F, format="SPSS")
+  CrossTable(df1$nsat,df1$PROM_ACT_DELIV_2, prop.chisq=F, format="SPSS")
 
 
 ###################################################

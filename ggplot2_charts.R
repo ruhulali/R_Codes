@@ -30,10 +30,10 @@ describe(tips)
 tips %>% 
   count(day) %>% 
   mutate(perc = n / nrow(tips)) -> tips2
-View(tips2)
+tips2
 
 ggplot(tips2, aes(x = reorder(day,-perc), y = perc)) + geom_bar(stat = "identity")+
-geom_text(aes(label = round(perc, digits = 2)), size = 3, hjust = 0.5, vjust = 2)
+  geom_text(aes(label = round(perc, digits = 2)), size = 3, hjust = 0.5, vjust = 2)
 
 
 ##Way 2
@@ -82,7 +82,7 @@ install.packages("gridExtra", dependencies = T)
 ggplot(mtcars, aes(x = as.factor(gear))) +
   geom_bar(aes(y = (..count..)/sum(..count..))) +
   geom_text(aes(y = ((..count..)/sum(..count..)), label = scales::percent((..count..)/sum(..count..))), 
-            stat = "count", vjust = -0.25) + scale_y_continuous(labels = percent) +
+  stat = "count", vjust = -0.25) + scale_y_continuous(labels = percent) +
   labs(title = "Manual vs. Automatic Frequency", y = "Percent", x = "Automatic Transmission")
 
 #2

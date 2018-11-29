@@ -85,6 +85,8 @@ library(ggplot2)
 ggplot(tips,aes(x=sex,fill=day)) + geom_bar() + CrossTable(tips$sex, format="SPSS")
 ggplot(na.omit(tips),aes(x=sex,fill=day)) + geom_bar(position="dodge") + CrossTable(tips$sex, format="SPSS")
 ########
+library(dplyr)
+
 tips2 <- tips %>% count(day) %>% mutate(perc = n / nrow(tips))
 tips2
 ggplot(tips2, aes(x = reorder(day,-perc), y = perc, fill=day)) + geom_bar(stat = "identity")+
@@ -95,20 +97,85 @@ geom_text(aes(label = round(perc, digits = 4)*100), size = 5, hjust = 0.5, vjust
 CrossTable(tips$day, format="SPSS")
 
 #for one continuos variable
+
 hist(tips$tip, breaks=100, main="tip Chart", xlab="tip")
 boxplot(tips$tip, main="Tips")
 par(mfrow=c(1, 2))  # divide graph area in 2 columns
 scatter.smooth(x=cars$speed, y=cars$dist, main="Dist ~ Speed")
 
 #for multiple categorical variable
+
 ggplot(tips, aes(x= day,  group=sex)) + geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
 geom_text(aes( label = scales::percent(..prop..),y= ..prop.. ), stat= "count", vjust = 2) +
 labs(y = "Percent", fill="Sex") + facet_grid(~sex) + scale_y_continuous(labels = scales::percent) + 
 CrossTable(tips$day,tips$sex, format="SPSS")
+
 ########
+
 tab1<- table(tips$sex, tips$day, tips$time)
 prop.table(tab1)
 round(ftable(prop.table(tab1)*100),2)
+
+
+#for multiple variable
+
+ggplot(aaa, aes(x= Gender,  group=Married)) + 
+  geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
+  geom_text(aes( label = scales::percent(..prop..),y= ..prop.. ), stat= "count", vjust = -.5) +
+  labs(y = "Percent", fill="Gender") + facet_grid(~Married) +
+  scale_y_continuous(labels = scales::percent) + 
+  CrossTable(aaa$Married,aaa$Gender, prop.chisq=F, format="SPSS")
+
+ggplot(tips, aes(x= sex,  group=day)) + 
+  geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
+  geom_text(aes( label = scales::percent(..prop..),y= ..prop.. ), stat= "count", vjust = -.5) +
+  labs(y = "Percent", fill="sex") + facet_grid(~day) +
+  scale_y_continuous(labels = scales::percent) + 
+  CrossTable(tips$sex,tips$day, prop.chisq=F, format="SPSS")
+
+
+tab1<- table(aaa$Gender, aaa$Married, aaa$Dependents)
+prop.table(tab1)
+round(ftable(prop.table(tab1)*100),2)
+
+CrossTable(aaa$Gender, aaa$Married, prop.chisq=F, format="SPSS")
+
+##########
+
+
+aaa$Gender_1 <- ifelse(aaa$Gender == 'Male', "1",  "2")
+aaa$Married_1 <- ifelse(aaa$Married == 'Yes', "1",  "2")
+aaa$Dependents_1[aaa$Dependents == '0'] <- '0'
+aaa$Dependents_1[aaa$Dependents == '1'] <- '1'
+aaa$Dependents_1[aaa$Dependents == '2'] <- '2'
+aaa$Dependents_1[aaa$Dependents == '3+'] <- '3'
+
+
+tab1<-table(aaa$Gender_1, aaa$Married_1, aaa$Dependents_1) #Create a table of counts (object of class table)
+barplot(tab1) #Stacked barchart
+barplot(tab1,beside=T) #Barchart (not stacked)
+barplot(tab1,horiz=T) #Bars are shown horizontally
+dotchart(tab1) #Cleveland's dot chart
+mosaicplot(tab1) #from the {graphics} package
+
+g + geom_bar(aes(x=Dependents, fill = Gender))
+g +
+  geom_bar(aes(fill = Dependents), position = position_stack(reverse = TRUE)) +
+  coord_flip() +
+  theme(legend.position = "top")
+
+qplot(Gender, data=aaa)
+
+ggplot(data = aaa, aes( x= Dependents , y= Married, fill= Gender ) ) + geom_bar( stat = 'identity')    # print bar chart
+
+
+ggplot(data=aaa, aes(x=Dependents, y=Married, fill=Gender)) + geom_bar(stat="identity", position=position_dodge())
+
+ggplot(aaa, aes(x=Gender, y=Dependents, fill=Married)) + geom_bar(position='dodge', stat='identity')
+
+library(data.table)
+a <- dcast(aaa, aaa$Married ~ aaa$Gender)
+a
 
 
 ######################### Data Manipulation ######################################

@@ -6,6 +6,8 @@ setwd(path)
 ### Load Libraries and Data ###
 install.packages("mlr", dependencies = T)
 library(mlr)
+train <- read.csv(file.choose())
+test <- read.csv(file.choose())
 train <- read.csv("train_u6lujuX.csv", na.strings = c(""," ",NA))
 test <- read.csv("test_Y3wMUE5.csv", na.strings = c(""," ",NA))
 View(test)

@@ -36,7 +36,7 @@ t
 
 ########
 
-find_funs("tidy") 
+find_funs("dendro.plot") 
 source("https://sebastiansauer.github.io/Rcode/find_funs.R")
 
 # OR #

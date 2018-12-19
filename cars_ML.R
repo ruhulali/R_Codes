@@ -60,6 +60,52 @@ toc()
 
 #############################################################################
 
+
+################################ Data Check ################################
+
+library(GGally)
+library(ggplot2)
+
+pairs(tips)
+
+ggpairs(data=tips, title="tips data",
+        mapping=ggplot2::aes(colour = sex),
+        lower=list(combo=wrap("facethist",binwidth=1)))
+
+
+# small function to display plots only if it's interactive
+p_ <- GGally::print_if_interactive
+
+pm <- ggpairs(data= tips[, 1:3], mapping=ggplot2::aes(colour = sex))
+p_(pm)
+
+pm <- ggpairs(data= tips, 1:3, mapping=ggplot2::aes(colour = sex), columnLabels = c("Total Bill", "Tip", "Sex"))
+p_(pm)
+
+pm <- ggpairs(data= tips, mapping=ggplot2::aes(colour = sex), upper = "blank")
+p_(pm)
+
+
+
+## Plot Types
+# Change default plot behavior
+pm <- ggpairs(
+  tips[, c(1, 3, 4, 2)],
+  upper = list(continuous = "density", combo = "box_no_facet"),
+  lower = list(continuous = "points", combo = "dot_no_facet")
+)
+p_(pm)
+
+# Supply Raw Functions (may be user defined functions!)
+pm <- ggpairs(
+  tips[, c(1, 3, 4, 2)],
+  upper = list(continuous = ggally_density, combo = ggally_box_no_facet),
+  lower = list(continuous = ggally_points, combo = ggally_dot_no_facet)
+)
+p_(pm)
+
+
+
 ######################### Frequencies and Crosstabs #########################
 
 # 2-Way Frequency Table

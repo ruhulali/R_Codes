@@ -1,77 +1,99 @@
 ##cars data ML##
 
 ## sample data ##
-
 data(tips, package = "reshape2")
 View(tips)
 
-######################### Data Checks ######################################
-rm(list = ls())
-class(df$trigger_dt)                #finding class 
-dfa$dfb <- NULL                     #remove data
-dfa <- NULL                         #remove data
-names(tips)                           #variable names
-dim(tips)                           #nrow & ncol
-str(tips)                           #data structure
-psych::describe(tips)               #frequency distribution
-mlr::summarizeColumns(tips)
-colSums(is.na(tips))                #column with NA count
-table(is.na(tips))                  #is.na
-levels(tips$sex)                    #values in a variable
-filter(deliveries, batsman_runs>4)  #filter
-df= rename(df, variable1=var1)      #rename variable
-trimws()                            #remove leading and trailing spaces
-library(dplyr)                      #Drop Multiple Variables
-df = select(mydata, -c(x,y,z))
-
-########
-
-table(tips$sex)                     #frequency distribution of a categorical variable
-
-#OR#
-
-t = data.frame(table(tips$size))
-t$percent= round(t$Freq / sum(t$Freq)*100,2)
-t
-
-########
-
-find_funs("dendro.plot") 
-source("https://sebastiansauer.github.io/Rcode/find_funs.R")
-
-# OR #
-
-install.packages("sos")
-findFn("plotFilterValuesGGVIS")
-
-########
-library(scales)                    # for percentage scales
-
-#############################################################################
-start.time <- Sys.time()           #measure execution time of a program
+#measure execution time of a program
+start.time <- Sys.time()           
 runif(5555,1,1000)
 end.time <- Sys.time()
 end.time - start.time
-# OR #
+
 library(tictoc)
 tic()
 runif(5555,1,1000)
 toc()
 
-#############################################################################
+######################### Data Checks ######################################
+rm(list = ls())
+class(df$trigger_dt)                 
 
+# dropping variable #
+dfa$dfb <- NULL                     
+dfa <- NULL                         
+
+library(dplyr)                      
+df = select(mydata, -c(x,y,z))
+
+# structure and summary of data #
+names(tips)                         
+dim(tips)                           
+str(tips)                           
+summary(tips)
+psych::describe(tips)               
+mlr::summarizeColumns(tips)
+
+# finding missing value #
+colSums(is.na(tips))                
+table(is.na(tips))                  
+
+NAcol <- which(colSums(is.na(all)) > 0)
+sort(colSums(sapply(all[NAcol], is.na)), decreasing = TRUE)
+cat('There are', length(NAcol), 'columns with missing values')
+
+# levels and filtering variable #
+levels(tips$sex)                    
+filter(deliveries, batsman_runs>4)  
+
+# renaming #
+df= rename(df, variable1=var1)      
+trimws()                            
+
+# finding functions in a package #
+
+find_funs("varImp") 
+source("https://sebastiansauer.github.io/Rcode/find_funs.R")
+
+install.packages("sos")
+findFn("plotFilterValuesGGVIS")
+
+########
+# for percentage scales
+library(scales)                    
 
 ################################ Data Check ################################
-
-library(GGally)
+library(corrplot)
 library(ggplot2)
 
-pairs(tips)
+###################################
+#Correlations
+numericVars <- which(sapply(all, is.numeric)) #index vector numeric variables
+numericVarNames <- names(numericVars) #saving names vector for use later on
+cat('There are', length(numericVars), 'numeric variables')
+all_numVar <- all[, numericVars]
+cor_numVar <- cor(all_numVar, use="pairwise.complete.obs") #correlations of all numeric variables
+cor_sorted <- as.matrix(sort(cor_numVar[,'SalePrice'], decreasing = TRUE)) #sort on decreasing correlations with SalePrice
+CorHigh <- names(which(apply(cor_sorted, 1, function(x) abs(x)>0.5))) #select only high corelations
+cor_numVar <- cor_numVar[CorHigh, CorHigh]
+corrplot.mixed(cor_numVar, tl.col="black", tl.pos = "lt")
 
+### simple correlation ###
+round(cor(tips[, sapply(tips, is.numeric)])*100,2)
+
+### corrplot ###
+corrplot(cor(tips[, sapply(tips, is.numeric)]))
+
+t <- cor(tips[, sapply(tips, is.numeric)])
+corrplot(t, method = "number")
+corrplot.mixed(t)
+
+### plot correlation ###
+library(GGally)
+pairs(tips)
 ggpairs(data=tips, title="tips data",
         mapping=ggplot2::aes(colour = sex),
         lower=list(combo=wrap("facethist",binwidth=1)))
-
 
 # small function to display plots only if it's interactive
 p_ <- GGally::print_if_interactive
@@ -84,8 +106,6 @@ p_(pm)
 
 pm <- ggpairs(data= tips, mapping=ggplot2::aes(colour = sex), upper = "blank")
 p_(pm)
-
-
 
 ## Plot Types
 # Change default plot behavior
@@ -105,11 +125,16 @@ pm <- ggpairs(
 p_(pm)
 
 
-
 ######################### Frequencies and Crosstabs #########################
 
-# 2-Way Frequency Table
+#frequency distribution of a categorical variable
+table(tips$sex)                     
 
+t = data.frame(table(tips$size))
+t$percent= round(t$Freq / sum(t$Freq)*100,2)
+t
+
+# 2-Way Frequency Table
 library(data.table)
 dcast(tips, tips$sex ~ tips$smoker)
 
@@ -134,10 +159,10 @@ round(prop.table(mytable,2),4)*100 # column percentages
 mytable <- xtabs(~tips$sex + tips$day + tips$time, data=tips)
 ftable(mytable) # print table 
 
+
 ######################### Data Visualization ######################################
 
 #for one categorical variable
-
 library(gmodels)
 library(ggplot2)
 
@@ -148,29 +173,31 @@ ggplot(na.omit(tips),aes(x=sex,fill=day)) + geom_bar(position="dodge") + CrossTa
 ########
 
 library(dplyr)
-
 tips2 <- tips %>% count(day) %>% mutate(perc = n / nrow(tips))
 tips2
 ggplot(tips2, aes(x = reorder(day,-perc), y = perc, fill=day)) + geom_bar(stat = "identity")+
   geom_text(aes(label = round(perc, digits = 4)*100), size = 5, hjust = 0.5, vjust = 2)
 
-### OR #####
 
 ggplot(tips2, aes(x = reorder(day,-perc), y = perc, fill=day)) + geom_bar(stat = "identity")+
   geom_text(aes(label = round(perc, digits = 4)*100), size = 5, hjust = 0.5, vjust = 2)+
   CrossTable(tips$day, format="SPSS")
 
 
-#for one continuos variable
+#for single continuos variable
+summary(tips$tip)
+
+ggplot(data=all[!is.na(all$SalePrice),], aes(x=SalePrice)) +
+  geom_histogram(fill="blue", binwidth = 10000) +
+  scale_x_continuous(breaks= seq(0, 800000, by=100000), labels = comma)
 
 hist(tips$tip, breaks=100, main="Tip Chart", xlab="Tip")
+h <- hist(train$SalePrice) + text(h$mids,h$counts,labels=h$counts, adj=c(0.5, -0.5))
 boxplot(tips$tip, main="Tips")
-par(mfrow=c(1, 2))  # divide graph area in 2 columns
 scatter.smooth(x=cars$speed, y=cars$dist, main="Dist ~ Speed")
 
 
 #for multiple categorical variable
-
 ggplot(tips, aes(x= day,  group=sex)) + geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
   geom_text(aes( label = scales::percent(..prop..),y= ..prop.. ), stat= "count", vjust = 2) +
   labs(y = "Percent", fill="Sex") + facet_grid(~sex) + scale_y_continuous(labels = scales::percent) + 
@@ -182,8 +209,7 @@ tab1<- table(tips$sex, tips$day, tips$time)
 prop.table(tab1)
 round(ftable(prop.table(tab1)*100),2)
 
-
-#for multiple variable
+########
 
 ggplot(tips, aes(x= sex,  group=time)) + 
   geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
@@ -194,10 +220,9 @@ ggplot(tips, aes(x= sex,  group=time)) +
 
 CrossTable(tips$sex, tips$smoker, prop.chisq=F, format="SPSS")
 
+#################################################################################################
 
-
-###### 1. Linear Regression ###########
-
+############################## 1. Linear Regression ##############################
 
 # Splitting the dataset into the Training set and Test set
 # # install.packages('caTools')
@@ -217,7 +242,6 @@ mlr::summarizeColumns(training_set)
 # test_set = scale(test_set)
 
 # Fitting the Regression Model to the dataset
-
 mod1 <-  lm(total_bill ~ ., data = training_set)
 summary(mod1)
 anova(mod1)
@@ -261,12 +285,10 @@ reg.eval1
 library(DAAG)
 cvResults1 <- suppressWarnings(CVlm(data=tips, form.lm=total_bill ~ ., m=5, dots=FALSE, seed=29, 
                                     legend.pos="topleft",  printit=TRUE, main="Small symbols are predicted values while bigger ones are actuals."))  
-
 attr(cvResults1, 'ms')  
 
 
-### Model 2 Regression
-
+### Model 2 Regression ###
 mod2 <-  lm(total_bill ~ tip, day, size, data = training_set)
 summary(mod2)
 anova(mod2)
@@ -310,7 +332,6 @@ reg.eval2
 library(DAAG)
 cvResults2 <- suppressWarnings(CVlm(data=tips, form.lm=total_bill ~ ., m=5, dots=FALSE, seed=29, 
                                     legend.pos="topleft",  printit=TRUE, main="Small symbols are predicted values while bigger ones are actuals."))  
-
 attr(cvResults, 'ms')  
 
 
@@ -331,7 +352,9 @@ dotchart(tab1) #Cleveland's dot chart
 mosaicplot(tab1) #from the {graphics} package
 
 
-##### 2. Logistic Regression #####
+################################### 2. Logistic Regression ###################################
+
+######### One way #########
 
 data(tips, package = "reshape2")
 View(tips)
@@ -367,6 +390,12 @@ pred <- predict(logitmod, newdata = test_set, type = "response")
 pred
 y_pred = ifelse(pred > 0.5, 1, 0)
 
+
+fitted.results <- as.factor(fitted.results)
+test$vs <- as.factor(test$vs)
+confusionMatrix(data = fitted.results, test$vs)
+
+
 library(InformationValue)
 optCutOff <- optimalCutoff(test_set$sex, pred)[1] 
 optCutOff
@@ -381,6 +410,7 @@ DAAG::vif(logitmod)
 #as positives and lesser of actual 0's as 1's. So for a good model, the curve should rise steeply, indicating that the TPR (Y-Axis) 
 #increases faster than the FPR (X-Axis) as the cutoff score decreases. Greater the area under the ROC curve, better the predictive 
 #ability of the model.
+library(ROCR)
 plotROC(test_set$sex, pred)
 #In simpler words, of all combinations of 1-0 pairs (actuals), Concordance is the percentage of pairs, whose scores of actual 
 #positive's are greater than the scores of actual negative's. For a perfect model, this will be 100%. So, the higher the concordance, 
@@ -408,3 +438,93 @@ y_act
 mean(y_pred == y_act)  # 94%
 
 
+######### Another way #########
+
+# load mtcars data
+data(mtcars)
+str(mtcars)
+mtcars$vs <- as.factor(mtcars$vs)
+
+library(corrplot)
+library(ggplot2)
+
+### simple correlation ###
+round(cor(mtcars[, sapply(mtcars, is.numeric)])*100,2)
+
+### corrplot ###
+corrplot(cor(mtcars[, sapply(mtcars, is.numeric)]))
+
+t <- cor(mtcars[, sapply(mtcars, is.numeric)])
+corrplot(t, method = "number")
+corrplot.mixed(t)
+
+### plot correlation ###
+library(GGally)
+pairs(mtcars)
+ggpairs(data=mtcars, title="tips data",
+        mapping=ggplot2::aes(colour = vs),
+        lower=list(combo=wrap("facethist",binwidth=1)))
+
+# Step 1:Split data in train and test data
+library(caTools)
+set.seed(279)
+split <- sample.split(mtcars, SplitRatio = 0.8)
+split
+
+train <- subset(mtcars, split== "TRUE")
+test <- subset(mtcars, split== "FALSE")
+train
+test
+
+# Step 2:Train model with logistics regression using glm function
+logit_model <- glm(vs~wt+disp, data = train, family = "binomial")
+logit_model
+summary(logit_model)
+
+#Interpretation
+# wt influences dependent variables positively and for 1 unit increase in wt increases the log of odds for vs=1 by 1.44
+# disp influences dependent variable negatively and for 1 unit increase in disp decreases the log of odds for vs=1 by 0.0344
+
+
+# Null Deviance = 30.78 (fit dependent variable only with intercept)
+# Residual Deviance = 15.01 (fit dependent variable with all the independent variable)
+# AIC (lesser the better, used for comparing different models)
+
+
+# Step 3:Predict test data based on trained model -logit_model
+fitted.results <- predict(logit_model, test, type = "response")
+
+fitted.results # Predicted Result
+test$vs    # Actual Result
+
+
+# Step 4: Change probabilities to class (0 or 1/Yes or No)
+# If prob > 0.5 then 1, else 0. Threshold can be set for better results
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+
+fitted.results # Predicted Result
+test$vs    # Actual Result
+
+
+# Step 5: Evauate Model Accuracy using Confusion matrix
+# accuracy = (true positive + true negatve) / all (100 times this is the same as percentCorrect)
+table(test$vs, fitted.results)
+misClassError <- mean(fitted.results != test$vs)
+print(paste('Accuracy =',1-misClassError))
+
+# sensitivity = true pasitive rate = true positive / all positive (sensitivity is also called recall)
+# specificity = true negative rate = true negative / all negative
+# precision = positive predictive velue = true positive rate
+fitted.results <- as.factor(fitted.results)
+test$vs <- as.factor(test$vs)
+confusionMatrix(data = fitted.results, test$vs)
+
+
+
+# ROC-AUC Curve
+#install.packages("ROCR")
+
+library(ROCR)
+plotROC(test$vs, fitted.results)
+
+#################################################################################################

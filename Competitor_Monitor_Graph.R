@@ -1,5 +1,5 @@
 rm(list = ls())
-install.packages('ggpubr')
+# install.packages('ggpubr')
 devtools::install_github("wilkelab/cowplot")
 
 library(ggpmisc)
@@ -11,6 +11,7 @@ theme_set(
   theme_minimal() +
     theme(legend.position = "top")
 )
+
 
 df <- read.csv(file.choose())
 
@@ -24,7 +25,7 @@ labs <- rownames(df$label)
 # Draw a rectangle underneath the text, making it easier to read.
 library(ggrepel)
 
-# 2. Create the plot
+# Create the plot
 b + geom_point(aes(x,y)) +
   geom_label_repel(aes(label = df$label), size = 3)+
   geom_hline(yintercept=0, size=1, color = "black", alpha = 0.5) + 

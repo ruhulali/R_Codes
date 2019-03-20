@@ -240,3 +240,4 @@ pairs.panels(iris[,-5],
              ellipses = TRUE # show correlation ellipses
 )
 
+

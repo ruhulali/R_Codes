@@ -2,6 +2,62 @@ library(dplyr)
 library(hflights)
 View(hflights)
 
+############################################## data check, structure and summary of data ####
+class(hflights)
+names(hflights)                         
+dim(hflights)                           
+str(hflights)                           
+summary(hflights)
+psych::describe(hflights)               
+mlr::summarizeColumns(hflights)
+
+############################################## finding missing value ####
+colSums(is.na(hflights))                
+table(is.na(hflights))                  
+
+# or
+
+NAcol <- which(colSums(is.na(hflights)) > 0)
+sort(colSums(sapply(hflights[NAcol], is.na)), decreasing = TRUE)
+cat('There are', length(NAcol), 'columns with missing values')
+
+############################################## EDA ####
+library(corrplot)
+library(ggplot2)
+library(scales) # for percentage scales                    
+
+############################################## Correlations ####
+numericVars <- which(sapply(hflights, is.numeric)) #index vector numeric variables
+numericVarNames <- names(numericVars) #saving names vector for use later on
+cat('There are', length(numericVars), 'numeric variables')
+all_numVar <- hflights[, numericVars]
+cor_numVar <- cor(all_numVar, use="pairwise.complete.obs") #correlations of all numeric variables
+cor_sorted <- as.matrix(sort(cor_numVar[,'tip'], decreasing = TRUE)) #sort on decreasing correlations with target variable
+CorHigh <- names(which(apply(cor_sorted, 1, function(x) abs(x)>0.5))) #select only high corelations
+cor_numVar <- cor_numVar[CorHigh, CorHigh]
+corrplot.mixed(cor_numVar, tl.col="black", tl.pos = "lt")
+
+### simple correlation ###
+round(cor(hflights[, sapply(hflights, is.numeric)])*100,2)
+
+### corrplot ###
+corrplot(cor(hflights[, sapply(hflights, is.numeric)]))
+
+t <- cor(hflights[, sapply(hflights, is.numeric)])
+corrplot(t, method = "number")
+corrplot.mixed(t)
+
+### plot correlation ###
+library(GGally)
+pairs(hflights)
+
+# or
+
+ggpairs(data=hflights, title="hflights data",
+        mapping=ggplot2::aes(colour = sex),
+        lower=list(combo=wrap("facethist",binwidth=1)))
+
+
 ##Data Manipulation
 ##-----------------
 

@@ -12,7 +12,7 @@ psych::describe(hflights)
 mlr::summarizeColumns(hflights)
 
 ############################################## finding missing value ####
-colSums(is.na(hflights))                
+sort(colSums(is.na(hflights)), decreasing = T)
 table(is.na(hflights))                  
 
 # or
@@ -20,6 +20,17 @@ table(is.na(hflights))
 NAcol <- which(colSums(is.na(hflights)) > 0)
 sort(colSums(sapply(hflights[NAcol], is.na)), decreasing = TRUE)
 cat('There are', length(NAcol), 'columns with missing values')
+
+#get percentage of missing value of the attributes - Approach 2 (Function)
+sapply(hflights, function(df)
+{
+  round(sum(is.na(df)==T)/length(df)*100,2)
+})
+
+#Approach - Amelia Package
+# install.packages("Amelia")
+library("Amelia")
+missmap(hflights, main = "Missing Map")
 
 ############################################## EDA ####
 library(corrplot)
@@ -32,7 +43,7 @@ numericVarNames <- names(numericVars) #saving names vector for use later on
 cat('There are', length(numericVars), 'numeric variables')
 all_numVar <- hflights[, numericVars]
 cor_numVar <- cor(all_numVar, use="pairwise.complete.obs") #correlations of all numeric variables
-cor_sorted <- as.matrix(sort(cor_numVar[,'tip'], decreasing = TRUE)) #sort on decreasing correlations with target variable
+cor_sorted <- as.matrix(sort(cor_numVar[,'Month'], decreasing = TRUE)) #sort on decreasing correlations with target variable
 CorHigh <- names(which(apply(cor_sorted, 1, function(x) abs(x)>0.5))) #select only high corelations
 cor_numVar <- cor_numVar[CorHigh, CorHigh]
 corrplot.mixed(cor_numVar, tl.col="black", tl.pos = "lt")

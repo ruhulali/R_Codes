@@ -1,25 +1,35 @@
 rm(list = ls())
 
-#### Measure execution time of a program ####
-start.time <- Sys.time()          
+#### measure execution time of a program ####
+start.time <- Sys.time()           
+runif(5555,1,1000)
 end.time <- Sys.time()
 end.time - start.time
-runif(5555,1,1000)
 
-#### Finding functions in a package ####
-find_funs("describe")
+
+#### finding functions in a package ####
+find_funs("varImp") 
 source("https://sebastiansauer.github.io/Rcode/find_funs.R")
-
-### or
 
 install.packages("sos")
 findFn("plotFilterValuesGGVIS")
 
-#### Upload/Sample data ####
-data(tips, package = "reshape2")
-View(tips)
+#### upload / sample data ####
+churn <- read.csv(file.choose())
+View(churn)
 
-#### Dropping variable ####
+#### EDA ####
+library(DataExplorer)
+
+plot_str(churn)
+plot_missing(churn)
+plot_histogram(churn)
+plot_density(churn)
+plot_correlation(churn, type = 'continuous','Exited')
+plot_bar(churn)
+create_report(churn)
+
+#### dropping variable ####
 dfa$dfb <- NULL                     
 dfa <- NULL                         
 
@@ -28,85 +38,49 @@ dfa <- NULL
 library(dplyr)                      
 df = select(mydata, -c(x,y,z))
 
-#### Data check, structure and summary of data ####
-class(tips)
-names(tips)                         
-dim(tips)                           
-str(tips)                           
-summary(tips)
-psych::describe(tips)               
-mlr::summarizeColumns(tips)
+#### data check, structure and summary of data ####
+class(churn)
+names(churn)                         
+dim(churn)                           
+str(churn)                           
+summary(churn)
+psych::describe(churn)               
+mlr::summarizeColumns(churn)
 
-#### Finding missing value ####
-colSums(is.na(tips))                
-table(is.na(tips))                  
-sort(colSums(is.na(hflights)), decreasing = T)
+#### finding missing value ####
+colSums(is.na(churn))                
+table(is.na(churn))                  
 
 # or
 
-NAcol <- which(colSums(is.na(tips)) > 0)
-sort(colSums(sapply(tips[NAcol], is.na)), decreasing = TRUE)
+NAcol <- which(colSums(is.na(churn)) > 0)
+sort(colSums(sapply(churn[NAcol], is.na)), decreasing = TRUE)
 cat('There are', length(NAcol), 'columns with missing values')
 
-#### Levels and filtering variable ####
+#### variable conversion ####
 library(dplyr)
 
-levels(tips$sex)                    
+churn$CreditScore <- as.numeric(churn$CreditScore)
+churn$Surname <- as.character(churn$Surname)
+churn$NumOfProducts <- as.factor(churn$NumOfProducts)
+churn$HasCrCard <- as.factor(churn$HasCrCard)
+churn$IsActiveMember <- as.factor(churn$IsActiveMember)
+churn$Exited <- as.factor(churn$Exited)
 
-hist(tips$total_bill)
-psych::describe(final_bill <- tips %>% filter(total_bill > 15))
-mlr::summarizeColumns(final_bill <- tips %>% filter(total_bill > 15))
-
-psych::describe(final_bill <- tips %>% filter(total_bill < 15))
-mlr::summarizeColumns(final_bill <- tips %>% filter(total_bill < 15))
-
-#### Renaming ####
+#### renaming ####
 df= rename(df, variable1=var1)      
 trimws()                            
 
 #### EDA ####
-DataExplorer::plot_str(tips)
-DataExplorer::plot_missing(tips)
-DataExplorer::plot_histogram(tips)
-DataExplorer::plot_density(tips)
-DataExplorer::plot_correlation(tips, type = 'continuous','Exited')
-DataExplorer::plot_bar(tips)
-DataExplorer::create_report(tips)
-
-### or 
-
-dplyr::glimpse(tips)
-funModeling::df_status(tips)
-funModeling::freq(tips) 
-funModeling::profiling_num(tips)
-funModeling::plot_num(tips)
-Hmisc::describe(tips)
-skimr::skim(tips)
-visdat::vis_miss(tips)
-visdat::vis_dat(tips)
-
-### or 
-
-library(ExPanDaR)
-df <- tips
-df$cs_id <- row.names(df)
-df$ts_id <-1
-ExPanD(df, cs_id ="cs_id", ts_id = "ts_id",
-       components = c(trend_graph = F, quantile_trend_graph = F))
-
-### or 
-
-esquisse::esquisser(tips)
-
-#### Correlations ####
 library(corrplot)
 library(ggplot2)
 library(scales) # for percentage scales                    
 
-numericVars <- which(sapply(tips, is.numeric)) #index vector numeric variables
+#### Correlations ####
+numericVars <- which(sapply(churn, is.numeric)) #index vector numeric variables
 numericVarNames <- names(numericVars) #saving names vector for use later on
 cat('There are', length(numericVars), 'numeric variables')
-all_numVar <- tips[, numericVars]
+all_numVar <- churn[, numericVars]
 cor_numVar <- cor(all_numVar, use="pairwise.complete.obs") #correlations of all numeric variables
 cor_sorted <- as.matrix(sort(cor_numVar[,'tip'], decreasing = TRUE)) #sort on decreasing correlations with SalePrice
 CorHigh <- names(which(apply(cor_sorted, 1, function(x) abs(x)>0.5))) #select only high corelations
@@ -114,42 +88,44 @@ cor_numVar <- cor_numVar[CorHigh, CorHigh]
 corrplot.mixed(cor_numVar, tl.col="black", tl.pos = "lt")
 
 ### simple correlation ###
-round(cor(tips[, sapply(tips, is.numeric)])*100,2)
+round(cor(churn[, sapply(churn, is.numeric)])*100,2)
 
 ### corrplot ###
-corrplot(cor(tips[, sapply(tips, is.numeric)]))
+corrplot(cor(churn[, sapply(churn, is.numeric)]))
 
-t <- cor(tips[, sapply(tips, is.numeric)])
+t <- cor(churn[, sapply(churn, is.numeric)])
 corrplot(t, method = "number")
 corrplot.mixed(t)
 
 ### plot correlation ###
 library(GGally)
-pairs(tips)
+
+churn1 <- select(churn,-c(Surname))
+pairs(churn)
 
 # or
 
-ggpairs(tips)
-ggpairs(data=tips, title="tips data",
-        mapping=ggplot2::aes(colour = sex),
+ggpairs(churn1)
+ggpairs(data=churn2, title="churn data",
+        mapping=ggplot2::aes(colour = Gender),
         lower=list(combo=wrap("facethist",binwidth=1)))
 
-#### Small function to display plots only if it's interactive ####
+#### small function to display plots only if it's interactive ####
 p_ <- GGally::print_if_interactive
 
-pm <- ggpairs(data= tips[, 1:3], mapping=ggplot2::aes(colour = sex))
+pm <- ggpairs(data= churn2, mapping=ggplot2::aes(colour = Gender))
 p_(pm)
 
-pm <- ggpairs(data= tips, 1:3, mapping=ggplot2::aes(colour = sex), columnLabels = c("Total Bill", "Tip", "Sex"))
+pm <- ggpairs(data= churn, 1:3, mapping=ggplot2::aes(colour = sex), columnLabels = c("Total Bill", "Tip", "Sex"))
 p_(pm)
 
-pm <- ggpairs(data= tips, mapping=ggplot2::aes(colour = sex), upper = "blank")
+pm <- ggpairs(data= churn, mapping=ggplot2::aes(colour = sex), upper = "blank")
 p_(pm)
 
 ### Plot Types
 ### Change default plot behavior
 pm <- ggpairs(
-  tips[, c(1, 3, 4, 2)],
+  churn[, c(1, 3, 4, 2)],
   upper = list(continuous = "density", combo = "box_no_facet"),
   lower = list(continuous = "points", combo = "dot_no_facet")
 )
@@ -157,7 +133,7 @@ p_(pm)
 
 ### Supply Raw Functions (may be user defined functions!)
 pm <- ggpairs(
-  tips[, c(1, 3, 4, 2)],
+  churn[, c(1, 3, 4, 2)],
   upper = list(continuous = ggally_density, combo = ggally_box_no_facet),
   lower = list(continuous = ggally_points, combo = ggally_dot_no_facet)
 )
@@ -167,24 +143,24 @@ p_(pm)
 #### Frequencies and Crosstabs ####
 
 ### frequency distribution of a categorical variable
-table(tips$sex)                     
+table(churn$Gender)                     
 
-t = data.frame(table(tips$size))
+t = data.frame(table(churn$Geography))
 t$percent= round(t$Freq / sum(t$Freq)*100,2)
 t
 
 ### 2-Way Frequency Table
 library(data.table)
-dcast(tips, tips$sex ~ tips$smoker)
+dcast(churn, churn$Geography ~ churn$Gender)
 
-tab1<-table(tips$sex, tips$day) #Create a table of counts (object of class table)
+tab1<-table(churn$Geography, churn$Gender) #Create a table of counts (object of class table)
 barplot(tab1, legend.text = T) #Stacked barchart
 barplot(tab1, legend.text = T, beside=T) #Barchart (not stacked)
 barplot(tab1, legend.text = T, horiz=T) #Bars are shown horizontally
 dotchart(tab1) #Cleveland's dot chart
 mosaicplot(tab1) #from the {graphics} package
 
-mytable <- table(tips$sex,tips$time) # A will be rows, B will be columns 
+mytable <- table(churn$Geography,churn$Gender) # A will be rows, B will be columns 
 mytable
 
 margin.table(mytable,1) # A frequencies (summed over B) 
@@ -195,7 +171,7 @@ round(prop.table(mytable,1),4)*100 # row percentages
 round(prop.table(mytable,2),4)*100 # column percentages
 
 ### 3-Way Frequency Table
-mytable <- xtabs(~tips$sex + tips$day + tips$time, data=tips)
+mytable <- xtabs(~churn$Geography + churn$Gender + churn$NumOfProducts)
 ftable(mytable) # print table 
 
 
@@ -205,70 +181,70 @@ ftable(mytable) # print table
 library(gmodels)
 library(ggplot2)
 
-qplot(sex, data=tips)
-ggplot(tips,aes(x=sex,fill=day)) + geom_bar() + CrossTable(tips$sex, format="SPSS")
-ggplot(na.omit(tips),aes(x=sex,fill=day)) + geom_bar(position="dodge") + CrossTable(tips$sex, format="SPSS")
+qplot(Gender, data=churn)
+ggplot(churn,aes(x=Gender,fill=Geography)) + geom_bar() + CrossTable(churn$Gender, format="SPSS")
+ggplot(na.omit(churn),aes(x=Gender,fill=Geography)) + geom_bar(position="dodge") + CrossTable(churn$Gender, format="SPSS")
 
-### or
+# or
 
 library(dplyr)
-tips2 <- tips %>% count(day) %>% mutate(perc = n / nrow(tips))
-tips2
-ggplot(tips2, aes(x = reorder(day,-perc), y = perc, fill=day)) + geom_bar(stat = "identity")+
+churn2 <- churn %>% count(Geography) %>% mutate(perc = n / nrow(churn))
+churn2
+ggplot(churn2, aes(x = reorder(Geography,-perc), y = perc, fill= Geography)) + geom_bar(stat = "identity")+
   geom_text(aes(label = round(perc, digits = 4)*100), size = 5, hjust = 0.5, vjust = 2)
 
 
-ggplot(tips2, aes(x = reorder(day,-perc), y = perc, fill=day)) + geom_bar(stat = "identity")+
+ggplot(churn2, aes(x = reorder(Geography,-perc), y = perc, fill=Geography)) + geom_bar(stat = "identity")+
   geom_text(aes(label = round(perc, digits = 4)*100), size = 5, hjust = 0.5, vjust = 2)+
-  CrossTable(tips$day, format="SPSS")
+  CrossTable(churn$Geography, format="SPSS")
 
 
 ### for single continuos variable
-summary(tips$tip)
+summary(churn$Balance)
 
-ggplot(data=tips[!is.na(tips$total_bill),], aes(x=total_bill)) +
+ggplot(data=churn[!is.na(churn$Balance),], aes(x=Balance)) +
   geom_histogram(fill="blue", binwidth = 10000) +
-  scale_x_continuous(breaks= seq(0, 800000, by=100000), labels = comma)
+  scale_x_continuous(breaks= seq(0, 500000, by=100000), labels = comma)
 
-hist(tips$total_bill, breaks=100, main="Tip Chart", xlab="Tip")
-h <- hist(tips$total_bill) + text(h$mids,h$counts,labels=h$counts, adj=c(0.5, -0.5))
-boxplot(tips$tip, main="Tips")
-scatter.smooth(x=tips$tip, y=tips$smoker, main="tip ~ smoker")
+hist(churn$Balance, breaks=100, main="Balance Chart", xlab="Balance")
+h <- hist(churn$Age) + text(h$mids,h$counts,labels=h$counts, adj=c(0.5, -0.5))
+boxplot(churn$Balance, main="churn")
+scatter.smooth(x=churn$tip, y=churn$smoker, main="tip ~ smoker")
 
 
 ### for multiple categorical variable
-ggplot(tips, aes(x= day,  group=sex)) + geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
+ggplot(churn, aes(x= Gender,  group=Geography)) + geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
   geom_text(aes( label = scales::percent(..prop..),y= ..prop.. ), stat= "count", vjust = 2) +
-  labs(y = "Percent", fill="Sex") + facet_grid(~sex) + scale_y_continuous(labels = scales::percent) + 
-  CrossTable(tips$day,tips$sex, format="SPSS")
+  labs(y = "Percent", fill="Geography") + facet_grid(~Geography) + scale_y_continuous(labels = scales::percent) + 
+  CrossTable(churn$Gender,churn$Geography, format="SPSS")
 
-### or
+# or
 
-tab1<- table(tips$sex, tips$day, tips$time)
-prop.table(tab1)
+tab1<- table(churn$Exited, churn$Gender, churn$HasCrCard)
 round(ftable(prop.table(tab1)*100),2)
 
-### or
+# or
 
-ggplot(tips, aes(x= sex,  group=time)) + 
+ggplot(churn, aes(x= Gender,  group=Geography)) + 
   geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
   geom_text(aes( label = scales::percent(..prop..),y= ..prop.. ), stat= "count", vjust = -.5) +
-  labs(y = "Percent", fill="sex") + facet_grid(~time) +
+  labs(y = "Percent", fill="Gender") + facet_grid(~Geography) +
   scale_y_continuous(labels = scales::percent) + 
-  CrossTable(tips$sex,tips$time, prop.chisq=F, format="SPSS")
+  CrossTable(churn$Gender,churn$Geography, prop.chisq=F, format="SPSS")
 
-CrossTable(tips$sex, tips$smoker, prop.chisq=F, format="SPSS")
+CrossTable(churn$Gender, churn$Geography, prop.chisq=F, format="SPSS")
 
 #### Machine Learning Models ####
 
 #### 1. Linear Regression ####
 
 ### Splitting the dataset into the Training set and Test set
+# install.packages('caTools')
 library(caTools)
 set.seed(123)
-split = sample.split(tips$total_bill, SplitRatio = 2/3)
-training_set = subset(tips, split == TRUE)
-test_set = subset(tips, split == FALSE)
+split = sample.split(churn$total_bill, SplitRatio = 2/3)
+training_set = subset(churn, split == TRUE)
+test_set = subset(churn, split == FALSE)
 
 str(training_set)
 str(test_set)
@@ -284,6 +260,7 @@ mod1 <-  lm(total_bill ~ ., data = training_set)
 summary(mod1)
 anova(mod1)
 plot(mod1)
+
 
 library(QuantPsyc)
 z3 <- lm.beta(mod1)*100
@@ -321,7 +298,7 @@ reg.eval1
 
 ### performs the CV
 library(DAAG)
-cvResults1 <- suppressWarnings(CVlm(data=tips, form.lm=total_bill ~ ., m=5, dots=FALSE, seed=29, 
+cvResults1 <- suppressWarnings(CVlm(data=churn, form.lm=total_bill ~ ., m=5, dots=FALSE, seed=29, 
                                     legend.pos="topleft",  printit=TRUE, main="Small symbols are predicted values while bigger ones are actuals."))  
 attr(cvResults1, 'ms')  
 
@@ -368,7 +345,7 @@ reg.eval2
 
 ### performs the CV
 library(DAAG)
-cvResults2 <- suppressWarnings(CVlm(data=tips, form.lm=total_bill ~ ., m=5, dots=FALSE, seed=29, 
+cvResults2 <- suppressWarnings(CVlm(data=churn, form.lm=total_bill ~ ., m=5, dots=FALSE, seed=29, 
                                     legend.pos="topleft",  printit=TRUE, main="Small symbols are predicted values while bigger ones are actuals."))  
 attr(cvResults, 'ms')  
 
@@ -383,7 +360,7 @@ mape1
 reg.eval1
 cvResults1
 
-tab1<-table(tips$sex, tips$day) #Create a table of counts (object of class table)
+tab1<-table(churn$sex, churn$day) #Create a table of counts (object of class table)
 barplot(rmse, legend.text = T) #Stacked barchart
 barplot(tab1, legend.text = T, beside=T) #Barchart (not stacked)
 barplot(tab1, legend.text = T, horiz=T) #Bars are shown horizontally
@@ -395,34 +372,35 @@ mosaicplot(tab1) #from the {graphics} package
 
 #### One way ####
 
-data(tips, package = "reshape2")
-View(tips)
+data(churn, package = "reshape2")
+View(churn)
 
 ### Encoding the target feature as factor
-str(tips)
-psych::describe(tips)
-mlr::summarizeColumns(tips)
-colSums(is.na(tips))
-table(is.na(tips))
-levels(tips$sex)
+str(churn1)
+psych::describe(churn1)
+mlr::summarizeColumns(churn1)
+colSums(is.na(churn1))
+table(is.na(churn1))
+levels(churn1$Exited)
 
 library('plyr')
-tips$sex <- revalue(tips$sex, c("Male"="1", "Female"="0"))
-tips$smoker <- revalue(tips$smoker, c("Yes"="1", "No"="0"))
-tips$day <- revalue(tips$day, c("Thur"="1", "Fri"="2", "Sat"="3", "Sun"="4"))
-tips$time <- revalue(tips$time, c("Lunch"="1", "Dinner"="2"))
-as.numeric(as.character(tips$size))
-table(tips$size)
+churn$sex <- revalue(churn$sex, c("Male"="1", "Female"="0"))
+churn$smoker <- revalue(churn$smoker, c("Yes"="1", "No"="0"))
+churn$day <- revalue(churn$day, c("Thur"="1", "Fri"="2", "Sat"="3", "Sun"="4"))
+churn$time <- revalue(churn$time, c("Lunch"="1", "Dinner"="2"))
+as.numeric(as.character(churn$size))
+table(churn$size)
 
 ### Splitting the dataset into the Training set and Test set
+# install.packages('caTools')
 library(caTools)
 set.seed(123)
-split = sample.split(tips$sex, SplitRatio = 0.75)
-training_set = subset(tips, split == TRUE)
-test_set = subset(tips, split == FALSE)
+split = sample.split(churn1$Exited, SplitRatio = 0.75)
+training_set = subset(churn1, split == TRUE)
+test_set = subset(churn1, split == FALSE)
 
 ### Build Logistic Model
-logitmod <- glm(sex ~ ., family = "binomial", data=training_set)
+logitmod <- glm(Exited ~ ., family = "binomial", data=training_set)
 summary(logitmod)
 
 ### Predicting the Test set results
@@ -430,17 +408,19 @@ pred <- predict(logitmod, newdata = test_set, type = "response")
 pred
 y_pred = ifelse(pred > 0.5, 1, 0)
 
-fitted.results <- as.factor(fitted.results)
-test$vs <- as.factor(test$vs)
-confusionMatrix(data = fitted.results, test$vs)
+library(caret)
+fitted.results <- as.factor(pred)
+test_set$Exited <- as.factor(test_set$Exited)
+confusionMatrix(data = pred, test_set$Exited)
+
 
 library(InformationValue)
-optCutOff <- optimalCutoff(test_set$sex, pred)[1] 
+optCutOff <- optimalCutoff(test_set$Exited, pred)[1] 
 optCutOff
 
 ### Misclassification error is the percentage mismatch of predcited vs actuals, 
 # irrespective of 1's or 0's. The lower the misclassification error, the better is your model.
-misClassError(test_set$sex, pred, threshold = optCutOff) 
+misClassError(test_set$Exited, pred, threshold = optCutOff) 
 
 ###check for multicollinearity in the model.
 DAAG::vif(logitmod)  
@@ -451,22 +431,22 @@ DAAG::vif(logitmod)
 # increases faster than the FPR (X-Axis) as the cutoff score decreases. Greater the area under the ROC curve, better the predictive 
 # ability of the model.
 library(ROCR)
-plotROC(test_set$sex, pred)
+plotROC(test_set$Exited, pred)
 
 ### In simpler words, of all combinations of 1-0 pairs (actuals), Concordance is the percentage of pairs, whose scores of actual 
 # positive's are greater than the scores of actual negative's. For a perfect model, this will be 100%. So, the higher the concordance, 
 # the better is the quality of model.
-Concordance(test_set$sex, pred)
+Concordance(test_set$Exited, pred)
 
 ### Sensitivity (or True Positive Rate) is the percentage of 1's (actuals) correctly predicted by the model, 
-sensitivity(test_set$sex, pred, threshold = optCutOff)
+sensitivity(test_set$Exited, pred, threshold = optCutOff)
 
 ### Specificity is the percentage of 0's (actuals) correctly predicted
-specificity(test_set$sex, pred, threshold = optCutOff)
-confusionMatrix(test_set$sex, pred, threshold = optCutOff)
+specificity(test_set$Exited, pred, threshold = optCutOff)
+confusionMatrix(test_set$Exited, pred, threshold = optCutOff)
 
 ### Making the Confusion Matrix
-cm = table(test_set[, 3], y_pred > 0.5)
+cm = table(test_set[, 13], y_pred > 0.5)
 cm
 
 ### Recode factors
@@ -474,7 +454,7 @@ y_pred_num <- ifelse(pred > 0.5, 1, 0)
 y_pred_num
 y_pred <- factor(y_pred_num, levels=c(0, 1))
 y_pred
-y_act <- test_set$sex
+y_act <- test_set$Exited
 y_act
 
 ### Accuracy
@@ -504,7 +484,7 @@ corrplot.mixed(t)
 ### plot correlation ###
 library(GGally)
 pairs(mtcars)
-ggpairs(data=mtcars, title="tips data",
+ggpairs(data=mtcars, title="churn data",
         mapping=ggplot2::aes(colour = vs),
         lower=list(combo=wrap("facethist",binwidth=1)))
 
@@ -571,11 +551,11 @@ plotROC(test$vs, fitted.results)
 #### 3. Decision Tree ####
 
 # structure and summary of data #
-names(tips)                         
-dim(tips)                           
-str(tips)                           
-summary(tips)
-psych::describe(tips)               
-mlr::summarizeColumns(tips)
+names(churn)                         
+dim(churn)                           
+str(churn)                           
+summary(churn)
+psych::describe(churn)               
+mlr::summarizeColumns(churn)
 
 

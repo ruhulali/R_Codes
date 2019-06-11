@@ -2,7 +2,7 @@ rm(list = ls())
 data(cars)
 View(cars)
 
-install.packages("DAAG", dependencies = T)
+#install.packages("DAAG", dependencies = T)
 
 dim(cars)
 names(cars)

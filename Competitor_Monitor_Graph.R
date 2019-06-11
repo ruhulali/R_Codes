@@ -14,6 +14,7 @@ theme_set(
 
 
 df <- read.csv(file.choose())
+names(df)
 
 b <- ggplot(df, aes(x = x, y = y))
 x_max <- max(abs(df$x)) 
@@ -27,7 +28,7 @@ library(ggrepel)
 
 # Create the plot
 b + geom_point(aes(x,y)) +
-  geom_label_repel(aes(label = df$label), size = 3)+
+  geom_label_repel(aes(label = df$label), size = 3.5)+
   geom_hline(yintercept=0, size=1, color = "black", alpha = 0.5) + 
   geom_vline(xintercept=0, size=1, color = "black", alpha = 0.5) +
   xlim(-x_max, x_max) + ylim(-y_max, y_max)
@@ -36,14 +37,14 @@ b + geom_point(aes(x,y)) +
 # Avoid overlaps by repelling text labels
 p <- ggplot(df, aes(x, y, label = rownames(df))) + geom_point()
 p + geom_label_repel(aes(label = df$label)) + 
-  geom_point(size = 3) + 
+  geom_point(size = 2) + 
   geom_hline(yintercept=0, size=1, color = "black", alpha = 0.5) + 
   geom_vline(xintercept=0, size=1, color = "black", alpha = 0.5) +
   xlim(-x_max, x_max) + ylim(-y_max, y_max)
 
 
 # 1. Open jpeg file
-png(width = 800, height = 700, filename="E:/Drive_Data_Ruhul/VA/Competitor Monitor/10_Oct'18/Rplot33.png")
+png(width = 900, height = 600, filename="E:/Drive_Data_Ruhul/VA/Competitor Monitor/10_Oct'18/Rplot33.png")
 # 2. Create the plot
 # 3. Close the file
 dev.off()

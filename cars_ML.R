@@ -2,9 +2,9 @@ rm(list = ls())
 
 #### Measure execution time of a program ####
 start.time <- Sys.time()          
+runif(5555,1,1000)
 end.time <- Sys.time()
 end.time - start.time
-runif(5555,1,1000)
 
 #### Finding functions in a package ####
 find_funs("describe")
@@ -34,13 +34,15 @@ names(tips)
 dim(tips)                           
 str(tips)                           
 summary(tips)
+dplyr::glimpse(tips)
 psych::describe(tips)               
+Hmisc::describe(tips)
 mlr::summarizeColumns(tips)
 
 #### Finding missing value ####
 colSums(is.na(tips))                
 table(is.na(tips))                  
-sort(colSums(is.na(hflights)), decreasing = T)
+sort(colSums(is.na(tips)), decreasing = T)
 
 # or
 
@@ -75,18 +77,20 @@ DataExplorer::create_report(tips)
 
 ### or 
 
-dplyr::glimpse(tips)
 funModeling::df_status(tips)
 funModeling::freq(tips) 
 funModeling::profiling_num(tips)
 funModeling::plot_num(tips)
-Hmisc::describe(tips)
+
+### or
+
 skimr::skim(tips)
 visdat::vis_miss(tips)
 visdat::vis_dat(tips)
 
 ### or 
 
+install.packages("ExPanDaR")
 library(ExPanDaR)
 df <- tips
 df$cs_id <- row.names(df)
@@ -97,6 +101,7 @@ ExPanD(df, cs_id ="cs_id", ts_id = "ts_id",
 ### or 
 
 esquisse::esquisser(tips)
+
 
 #### Correlations ####
 library(corrplot)
@@ -238,7 +243,7 @@ scatter.smooth(x=tips$tip, y=tips$smoker, main="tip ~ smoker")
 
 ### for multiple categorical variable
 ggplot(tips, aes(x= day,  group=sex)) + geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
-  geom_text(aes( label = scales::percent(..prop..),y= ..prop.. ), stat= "count", vjust = 2) +
+  geom_text(aes( label = scales::percent(..prop..),y= ..prop.. ), stat= "count", vjust = 1) +
   labs(y = "Percent", fill="Sex") + facet_grid(~sex) + scale_y_continuous(labels = scales::percent) + 
   CrossTable(tips$day,tips$sex, format="SPSS")
 
@@ -370,7 +375,7 @@ reg.eval2
 library(DAAG)
 cvResults2 <- suppressWarnings(CVlm(data=tips, form.lm=total_bill ~ ., m=5, dots=FALSE, seed=29, 
                                     legend.pos="topleft",  printit=TRUE, main="Small symbols are predicted values while bigger ones are actuals."))  
-attr(cvResults, 'ms')  
+attr(cvResults2, 'ms')  
 
 
 ### comparing both models
@@ -383,7 +388,7 @@ mape1
 reg.eval1
 cvResults1
 
-tab1<-table(tips$sex, tips$day) #Create a table of counts (object of class table)
+tab1 <- table(tips$sex, tips$day) #Create a table of counts (object of class table)
 barplot(rmse, legend.text = T) #Stacked barchart
 barplot(tab1, legend.text = T, beside=T) #Barchart (not stacked)
 barplot(tab1, legend.text = T, horiz=T) #Bars are shown horizontally
@@ -445,20 +450,22 @@ misClassError(test_set$sex, pred, threshold = optCutOff)
 ###check for multicollinearity in the model.
 DAAG::vif(logitmod)  
 
-### Receiver Operating Characteristics Curve traces the percentage of true positives accurately predicted by a given logit model as the 
-# prediction probability cutoff is lowered from 1 to 0. For a good model, as the cutoff is lowered, it should mark more of actual 1's 
-# as positives and lesser of actual 0's as 1's. So for a good model, the curve should rise steeply, indicating that the TPR (Y-Axis) 
-# increases faster than the FPR (X-Axis) as the cutoff score decreases. Greater the area under the ROC curve, better the predictive 
-# ability of the model.
+### Receiver Operating Characteristics Curve traces the percentage of true positives accurately 
+# predicted by a given logit model as the prediction probability cutoff is lowered from 1 to 0. 
+# For a good model, as the cutoff is lowered, it should mark more of actual 1's as positives and 
+# lesser of actual 0's as 1's. So for a good model, the curve should rise steeply, indicating that 
+# the TPR (Y-Axis) increases faster than the FPR (X-Axis) as the cutoff score decreases. 
+# Greater the area under the ROC curve, better the predictive ability of the model.
 library(ROCR)
 plotROC(test_set$sex, pred)
 
-### In simpler words, of all combinations of 1-0 pairs (actuals), Concordance is the percentage of pairs, whose scores of actual 
-# positive's are greater than the scores of actual negative's. For a perfect model, this will be 100%. So, the higher the concordance, 
-# the better is the quality of model.
+### In simpler words, of all combinations of 1-0 pairs (actuals), Concordance is the percentage of 
+# pairs, whose scores of actual positive's are greater than the scores of actual negative's. For a 
+# perfect model, this will be 100%. So, the higher the concordance, the better is the quality of model.
 Concordance(test_set$sex, pred)
 
-### Sensitivity (or True Positive Rate) is the percentage of 1's (actuals) correctly predicted by the model, 
+### Sensitivity (or True Positive Rate) is the percentage of 1's (actuals) correctly predicted 
+# by the model, 
 sensitivity(test_set$sex, pred, threshold = optCutOff)
 
 ### Specificity is the percentage of 0's (actuals) correctly predicted
@@ -525,8 +532,9 @@ logit_model
 summary(logit_model)
 
 ### Interpretation
-# wt influences dependent variables positively and for 1 unit increase in wt increases the log of odds for vs=1 by 1.44
-# disp influences dependent variable negatively and for 1 unit increase in disp decreases the log of odds for vs=1 by 0.0344
+# wt influences dependent variables positively and for 1 unit increase in wt increases the log of 
+# odds for vs=1 by 1.44 disp influences dependent variable negatively and for 1 unit increase in 
+# disp decreases the log of odds for vs=1 by 0.0344
 
 
 # Null Deviance = 30.78 (fit dependent variable only with intercept)
